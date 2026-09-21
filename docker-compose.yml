@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"   # 左邊是本機Port，右邊是Container Port
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - python_service
+      - go_service
+
+  python_service:
+    build: ./python_service
+    ports:
+      - "8001:8001"
+
+  go_service:
+    build: ./go_service
+    ports:
+      - "8002:8002"
