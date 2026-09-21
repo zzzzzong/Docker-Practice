@@ -140,24 +140,106 @@ docker-practice
     └── README.md
 ```
 
-我們要在每一個服務資料夾底下各自加入一個叫`Dockerfile`的檔案，不用副檔名，D要大寫。因為Docker只會抓取檔名完全符合檔案。
-現在應該要變成這樣
+我們要在每一個服務資料夾底下各自加入一個叫`Dockerfile`的檔案，不用副檔名，D要大寫，因為Docker只會抓取檔名完全符合檔案。
+當你打完之後vscode的explorer那邊理論上就會有藍色鯨魚icon出現。
+
+然後貼上我們的對應程式碼，四個服務的Dockerfile內容都不一樣喔。
+
+接下來就要在根目錄建立我們的`docker-compose.yml`，會有紅色鯨魚icon。
+
+也是一樣貼上我們的程式碼。
+
+
+file tree大概會長這樣
+
 ```bash
 docker-practice
+    ├── docker-compose.yml   <---- new
     ├── frontend
-    │   ├── Dockerfile
+    │   ├── Dockerfile       <---- new
     │   └── index.html
     ├── gateway
-    │   ├── Dockerfile
+    │   ├── Dockerfile       <---- new
     │   ├── gateway.go
     │   └── go.mod
     ├── go_service
-    │   ├── Dockerfile
+    │   ├── Dockerfile       <---- new
     │   ├── go.mod
     │   └── go_service.go
     ├── python_service
-    │   ├── Dockerfile
+    │   ├── Dockerfile       <---- new
     │   ├── python_service.py
     │   └── requirements.txt
     └── README.md
+```
+
+在 Docker 的世界裡，每個 Container 都是一台完全獨立的虛擬機器。如果在程式碼中寫死連線到 `127.0.0.1`（localhost），它只會連到「Container 自己的內部」，而找不到外面的其他服務。
+
+為了解決這個問題，Docker Compose 會自動建立一個虛擬網路。不同服務之間必須透過 `docker-compose.yml` 裡定義的 **「服務名稱」**（例如 `python_service` 或 `go_service`）當作 DNS 網址來互相溝通。
+
+
+
+### 打包服務
+
+我們的原始碼中已經備妥了各服務的 `Dockerfile` 以及總指揮圖 `docker-compose.yml`。只需在專案根目錄執行以下指令：
+
+```bash
+# 建立、打包並啟動所有服務 (--build 代表強制重新打包最新映像檔)
+sudo docker compose up --build
+```
+這樣就會開始編譯、打包，並且結束後會自動run起來。
+
+
+### 測試服務
+啟動完成後，打開瀏覽器並前往：
+```text
+http://localhost
+```
+
+並且按按看按鈕 觀察一下是否有正確回應，並且可以觀察terminal看看docker有沒有正確印出我們埋的echo line.
+
+
+---
+[ Anotations ]
+
+這邊是常用一些command
+
+```bash
+sudo docker compose up --build
+```
+
+- up: 建立並同時啟動所有服務的container
+- --build 強制在啟動前重新打包最新的image, 確保所有修改都有被套用
+
+
+```bash
+### 【映像檔 (Image) 管理】
+1. `docker images`                # 列出本機所有下載或打包好的 Image
+2. `docker pull <image>`          # 從雲端下載 Image (例如 docker pull python:3.9)
+3. `docker rmi <image>`           # 刪除指定的 Image
+4. `docker build -t <name> .`     # 讀取當前目錄的 Dockerfile 並打包成 Image
+
+### 【容器 (Container) 基礎操作】
+5. `docker ps`                    # 列出「正在執行中」的 Container
+6. `docker ps -a`                 # 列出「所有」Container (包含已停止的)
+7. `docker run <image>`           # 從 Image 建立並啟動一個新的 Container
+8. `docker stop <container>`      # 停止執行中的 Container
+9. `docker start <container>`     # 重新啟動已經停止的 Container
+10. `docker rm <container>`       # 刪除已停止的 Container
+
+### 【進入與檢查容器】
+11. `docker logs <container>`     # 查看特定 Container 的輸出日誌
+12. `docker logs -f <container>`  # 即時追蹤日誌 (類似 tail -f，隨時監控)
+13. `docker exec -it <cont> bash` # 進入運作中 Container 的終端機 (輕量環境可用 sh)
+14. `docker inspect <container>`  # 查看 Container 的詳細底層設定與網路資訊
+
+### 【Docker Compose (微服務管理)】
+15. `docker compose up`           # 依照 yml 檔建立並同時啟動所有服務 (前台顯示 Log)
+16. `docker compose up -d`        # 建立並啟動所有服務 (背景執行，實務部署最常用)
+17. `docker compose down`         # 停止並刪除 compose 建立的所有 Container 與網路
+18. `docker compose build`        # 不啟動服務，只強制重新打包有改動的 Image
+
+### 【系統清理 (大掃除)】
+19. `docker image prune`          # 清除打包過程中產生、沒名字的廢棄 Image (<none>)
+20. `docker system prune`         # 清除所有停止的 Container、無用網路與 Image，釋放空間
 ```
