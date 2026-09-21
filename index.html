@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Gateway 測試</title>
+    <style>
+        body { display: flex; font-family: sans-serif; text-align: center; }
+        .panel { flex: 1; padding: 20px; margin: 10px; border: 1px solid #ccc; }
+        .stack { text-align: left; background: #f4f4f4; padding: 10px; height: 300px; overflow-y: auto; margin-top: 10px;}
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h2>FastAPI</h2>
+        <button onclick="sendRequest('/api/fastapi', 'fastapi-stack')">呼叫 FastAPI</button>
+        <div id="fastapi-stack" class="stack"></div>
+    </div>
+    <div class="panel">
+        <h2>Go</h2>
+        <button onclick="sendRequest('/api/go', 'go-stack')">呼叫 Go</button>
+        <div id="go-stack" class="stack"></div>
+    </div>
+
+    <script>
+        // 統一將請求發給 Gateway (Port 8080)
+        async function sendRequest(path, stackId) {
+            const stack = document.getElementById(stackId);
+            try {
+                const res = await fetch('http://127.0.0.1:8080' + path);
+                const data = await res.json();
+                stack.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${data.message}</div>`;
+            } catch (err) {
+                stack.innerHTML += `<div style="color:red">[Error] 請求失敗</div>`;
+            }
+            stack.scrollTop = stack.scrollHeight; // 自動捲動到底部
+        }
+    </script>
+</body>
+</html>
