@@ -6,10 +6,6 @@ __pycache__/
 # 隱藏的環境變數檔 (如果有用到)
 .env
 
-# Go 編譯出來的執行檔 (預防你用 go build)
-gateway
-backend
-
 # 編輯器與系統設定 (VS Code 等)
 .vscode/
 .DS_Store
